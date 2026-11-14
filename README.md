@@ -1,9 +1,88 @@
 # GeneWeaver
+**Educational CRISPR guide-to-target alignment and off-target screening prototype**
 
-GPU-Accelerated CRISPR Alignment Engine
+GeneWeaver is a small, reproducible Python project for:
+- reading DNA sequences from FASTA files;
+- validating DNA alphabets and normalizing sequences;
+- aligning a guide sequence against candidate target sequences;
+- reporting exact-match and mismatch-based candidate hits;
+- exporting results as CSV and JSON;
+- running a baseline benchmark and automated tests.
 
-## Project Overview
-A Python-based project for CRISPR sequence alignment.
+> Scope: this repository is an educational sequence-analysis prototype. It is not a clinical tool, does not predict biological activity, and does not establish that a guide is safe or effective. The current implementation is CPU-based; GPU acceleration is a future extension, not a feature claimed by this version.
 
-## Status
-Project setup in progress.
+## Requirements
+- Python 3.10+
+- No third-party packages required for the core application
+
+## Setup (Windows PowerShell)
+```powershell
+cd "$HOME\Desktop\GeneWeaver"
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e .
+```
+
+If PowerShell blocks activation, use:
+```powershell
+.\.venv\Scripts\python.exe -m pip --version
+```
+
+## Run the demo
+```powershell
+python main.py --guide data/sample_guide.fasta --targets data/sample_targets.fasta --max-mismatches 3 --output results
+```
+
+The program writes:
+- `results/hits.csv`
+- `results/hits.json`
+
+## Run tests
+```powershell
+python -m unittest discover -s tests -v
+```
+
+## Run benchmark
+```powershell
+python benchmarks/benchmark.py
+```
+
+## Project layout
+```text
+GeneWeaver/
+├── data/                  # small sample FASTA inputs
+├── docs/                  # architecture and usage notes
+├── results/               # generated output (ignored by Git)
+├── src/geneweaver/        # reusable package code
+├── tests/                 # automated tests
+├── benchmarks/            # simple performance baseline
+├── main.py                # command-line entry point
+├── requirements.txt
+└── .gitignore
+```
+
+## Algorithm overview
+The first version uses a transparent ungapped, equal-length comparison:
+1. Read guide and target DNA sequences from FASTA.
+2. Normalize to uppercase and validate A/C/G/T/N.
+3. Compare the guide with each same-length window in each target.
+4. Count mismatches and report windows within the configured mismatch threshold.
+5. Export candidate hits with target ID, start/end positions, mismatch count, and aligned strings.
+
+This is a screening demonstration only. It does not model PAM requirements, bulges, chromatin accessibility, cell context, or experimentally validated off-target effects.
+
+## Example
+```powershell
+python main.py --guide data/sample_guide.fasta --targets data/sample_targets.fasta --max-mismatches 2 --output results
+```
+
+## Future roadmap
+- Add PAM-aware filtering with configurable PAM patterns.
+- Add a documented scoring model and alignment modes.
+- Add optional GPU acceleration behind a feature flag, with CPU fallback.
+- Add larger test datasets and reproducible performance comparisons.
+- Add input-size limits and more detailed validation.
+
+## Responsible use
+Use public or synthetic sequences for learning. Do not interpret these outputs as medical, clinical, diagnostic, or experimental recommendations.
