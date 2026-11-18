@@ -1,14 +1,29 @@
+
 import csv
 import json
+from pathlib import Path
 
-FIELDS = ["target_id", "start", "end", "mismatches", "guide", "target_window"]
+FIELDS = [
+    "target_id",
+    "start",
+    "end",
+    "mismatches",
+    "guide",
+    "target_window"
+]
 
 def write_csv(path, hits):
-    with open(path, "w", newline="", encoding="utf-8") as handle:
+    path = Path(path)
+
+    with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS)
         writer.writeheader()
-        writer.writerows(hit.to_dict() for hit in hits)
+
+        for hit in hits:
+            writer.writerow(hit.to_dict())
 
 def write_json(path, payload):
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2)
+    path = Path(path)
+
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2, ensure_ascii=False)
